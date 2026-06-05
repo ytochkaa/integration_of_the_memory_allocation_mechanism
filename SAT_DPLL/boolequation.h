@@ -2,6 +2,8 @@
 #define BOOLEQUATION_H
 
 #include "boolinterval.h"
+#include <memory>
+
 
 class BoolEquation
 {
@@ -21,6 +23,9 @@ public:
 	bool Rule5Col1(BBV vector);
 	void Simplify(int ixCol, char value);
 	int ChooseColForBranching();
+
+	std::shared_ptr<IStrategy> BranchStrategy;
+	bool setStrategy (std::shared_ptr<IStrategy> BranchStrategy);
 };
 
 #endif // BOOLEQUATION_H
