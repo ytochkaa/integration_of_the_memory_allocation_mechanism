@@ -1,2 +1,7 @@
 .vscode/
 build/
+SAT_DPLL/.qmake.stash
+SAT_DPLL/Makefile
+SAT_DPLL/Makefile.Release
+.gitignore
+SAT_DPLL/Makefile.Debug
