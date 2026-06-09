@@ -5,3 +5,4 @@ SAT_DPLL/Makefile
 SAT_DPLL/Makefile.Release
 .gitignore
 SAT_DPLL/Makefile.Debug
+SAT_DPLL/release/

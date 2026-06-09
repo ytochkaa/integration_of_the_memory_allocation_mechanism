@@ -32,6 +32,7 @@ BoolEquation::BoolEquation(BoolEquation &equation)
 	this->cnfSize = equation.cnfSize;
 	this->count = equation.count;
 	this->mask = equation.mask;
+	this->BranchStrategy = equation.BranchStrategy;
 }
 
 // Проверка правил

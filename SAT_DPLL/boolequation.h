@@ -2,6 +2,7 @@
 #define BOOLEQUATION_H
 
 #include "boolinterval.h"
+#include "strategy.h"
 #include <memory>
 
 

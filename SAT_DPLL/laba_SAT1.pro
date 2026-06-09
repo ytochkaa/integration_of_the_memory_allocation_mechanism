@@ -18,7 +18,8 @@ SOURCES += \
         BBV.cpp \
         boolequation.cpp \
         boolinterval.cpp \
-        main.cpp
+        main.cpp \
+        strategy.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -29,4 +30,5 @@ HEADERS += \
     BBV.h \
     NodeBoolTree.h \
     boolequation.h \
-    boolinterval.h
+    boolinterval.h \
+    strategy.h

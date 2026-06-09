@@ -10,6 +10,7 @@
 #include "boolinterval.h"
 #include "boolequation.h"
 #include "BBV.h"
+#include "strategy.h"
 
 
 int main(int argc, char *argv[])
@@ -67,6 +68,7 @@ int main(int argc, char *argv[])
 		BoolInterval *root = new BoolInterval(vec, dnc);
 
 		BoolEquation *boolequation = new BoolEquation(CNF, root, cnfSize, cnfSize, vec);
+		boolequation->setStrategy(std::make_shared<MostConstrainedStrategy>());
 
 		// Алгоритм поиска корня. Работаем всегда с верхушкой стека.
 		// Шаг 1. Правила выполняются? Нет - Ветвление Шаг 5. Да - Упрощаем Шаг 2.
