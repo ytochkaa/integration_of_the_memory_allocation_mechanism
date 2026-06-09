@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 
-int IStrategy::ChooseColumn(BoolEquation &equation) const {
+int MostConstrainedStrategy::ChooseColumn(BoolEquation &equation) const {
     std::vector<int> indexes;
 	std::vector<int> values;
 	bool rezInit = false;
@@ -43,4 +43,12 @@ int IStrategy::ChooseColumn(BoolEquation &equation) const {
 	int minElementIndex = std::min_element(values.begin(), values.end()) - values.begin();
 
 	return indexes.at(minElementIndex);
+}
+
+int FirstFreeColumnStrategy::ChooseColumn(BoolEquation &equation) const {
+	for (int i = 0; i < equation.mask.getSize(); i++) {
+		if (equation.mask[i] == 0)
+			return i;
+	}
+	return -1;
 }
