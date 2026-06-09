@@ -227,11 +227,10 @@ int BoolEquation::ChooseColForBranching()
     else return -1;
 }
 
-bool BoolEquation::setStrategy (std::shared_ptr<IStrategy> BranchStrategyArg){
-	if (BranchStrategy) {
-		BranchStrategy = BranchStrategyArg;
-		return true;
-	} else {
-        return false;//branchingStrategy = std::make_shared<MostContraintBranchingStrategy>();
-	}
+bool BoolEquation::setStrategy(std::shared_ptr<IStrategy> BranchStrategyArg)
+{
+    if (!BranchStrategyArg)
+        return false;
+    BranchStrategy = BranchStrategyArg;
+    return true;
 }
