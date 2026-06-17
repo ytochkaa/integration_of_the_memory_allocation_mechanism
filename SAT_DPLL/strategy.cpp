@@ -40,7 +40,7 @@ int MostConstrainedStrategy::ChooseColumn(BoolEquation &equation) const {
 		}
 	}
 
-	int minElementIndex = std::min_element(values.begin(), values.end()) - values.begin();
+	int minElementIndex = static_cast<int>(std::min_element(values.begin(), values.end()) - values.begin());
 
 	return indexes.at(minElementIndex);
 }
