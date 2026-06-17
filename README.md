@@ -8,7 +8,6 @@
 
 ```mermaid
 classDiagram
-direction LR
     class Allocator {
         +Allocate(size_t) void*
         +Deallocate(void*)
