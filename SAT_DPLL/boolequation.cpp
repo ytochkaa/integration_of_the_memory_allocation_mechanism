@@ -230,7 +230,7 @@ int BoolEquation::ChooseColForBranching()
     else return -1;
 }
 
-bool BoolEquation::setStrategy(std::shared_ptr<IStrategy> BranchStrategyArg)
+bool BoolEquation::setStrategy(const std::shared_ptr<IStrategy> &BranchStrategyArg)
 {
     if (!BranchStrategyArg)
         return false;

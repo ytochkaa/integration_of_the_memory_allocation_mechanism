@@ -27,7 +27,7 @@ public:
 	int ChooseColForBranching();
 
 	std::shared_ptr<IStrategy> BranchStrategy;
-	bool setStrategy (std::shared_ptr<IStrategy> BranchStrategy);
+	bool setStrategy(const std::shared_ptr<IStrategy> &BranchStrategy);
 
 	DECLARE_ALLOCATOR
 };
