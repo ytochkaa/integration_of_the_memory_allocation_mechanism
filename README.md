@@ -83,14 +83,16 @@ classDiagram
     }
 
     AllocatorPool --|> Allocator
-    MostConstrainedStrategy --|> IStrategy
-    FirstFreeColumnStrategy --|> IStrategy
+    MostConstrainedStrategy ..|> IStrategy
+    FirstFreeColumnStrategy ..|> IStrategy
 
-    BoolInterval --> BBV : использует
-    BoolEquation o-- BoolInterval : cnf[]
+    BoolInterval *-- BBV : vec, dnc
+    BoolEquation *-- BBV : mask
+    BoolEquation o-- BoolInterval : cnf[], root
     BoolEquation --> IStrategy : BranchStrategy
     NodeBoolTree --> BoolEquation : eq
     NodeBoolTree --> NodeBoolTree : lt, rt
+    ListNode --> ListNode : next
 
     BoolInterval ..> Allocator : DECLARE_ALLOCATOR
     BoolEquation ..> Allocator : DECLARE_ALLOCATOR
