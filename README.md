@@ -8,7 +8,7 @@
 
 ```mermaid
 classDiagram
-    namespace Allocator {
+    namespace Memory {
         class Allocator {
             +Allocate(size_t) void*
             +Deallocate(void*)
