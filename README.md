@@ -31,8 +31,6 @@ classDiagram
     }
 
     class BoolInterval {
-        +BBV vec
-        +BBV dnc
         +getValue(int ix) char
         +setValue(char value, int ix) void
         +isOrthogonal(BoolInterval&) bool
@@ -44,7 +42,6 @@ classDiagram
         +BoolInterval* root
         +int cnfSize
         +int count
-        +BBV mask
         +shared_ptr~IStrategy~ BranchStrategy
         +CheckRules() int
         +Simplify(int, char) void
