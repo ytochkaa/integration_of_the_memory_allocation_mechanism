@@ -5,6 +5,8 @@
 #include <ostream>
 #include <string>
 
+IMPLEMENT_ALLOCATOR(BoolEquation, 0, 0)
+
 BoolEquation::BoolEquation(BoolInterval **cnf, BoolInterval *root, int cnfSize, int count, BBV mask)
 {
 	this->cnf = new BoolInterval*[cnfSize];

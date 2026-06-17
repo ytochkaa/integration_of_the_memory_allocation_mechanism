@@ -3,6 +3,7 @@
 
 #include "boolinterval.h"
 #include "strategy.h"
+#include "Allocator.h"
 #include <memory>
 
 
@@ -27,6 +28,8 @@ public:
 
 	std::shared_ptr<IStrategy> BranchStrategy;
 	bool setStrategy (std::shared_ptr<IStrategy> BranchStrategy);
+
+	DECLARE_ALLOCATOR
 };
 
 #endif // BOOLEQUATION_H
