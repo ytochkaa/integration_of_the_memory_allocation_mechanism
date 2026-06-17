@@ -1,0 +1,52 @@
+Отчёт по статическому анализу кода
+====================================
+Инструмент: clang-tidy (Qt Creator 8.x, LLVM/Clang)
+Проект: SAT_DPLL (DPLL-решатель булевых уравнений)
+Анализируемые файлы: boolequation.cpp, boolinterval.cpp, strategy.cpp
+Проверки: clang-analyzer-*, bugprone-*, performance-*, modernize-*
+
+------------------------------------
+1. performance-unnecessary-value-param
+------------------------------------
+Файл:    boolequation.cpp, строка 233
+Код:     bool BoolEquation::setStrategy(std::shared_ptr<IStrategy> BranchStrategyArg)
+Описание: параметр shared_ptr копируется при каждом вызове, хотя используется
+          только для чтения — избыточная операция увеличения счётчика ссылок.
+Исправление: параметр изменён на const std::shared_ptr<IStrategy> &BranchStrategyArg
+
+------------------------------------
+2. bugprone-narrowing-conversions
+------------------------------------
+Файл:    boolinterval.cpp, строки 9, 10, 30, 31
+Код:     vec = BBV(len);  // len имеет тип size_t, BBV принимает int
+Описание: неявное сужающее преобразование size_t -> int; на платформах
+          с size_t > int возможна потеря значения.
+Исправление: не вносилось — изменение требует правки интерфейса класса BBV,
+             что выходит за рамки задачи. Нарушение задокументировано.
+
+------------------------------------
+3. bugprone-narrowing-conversions
+------------------------------------
+Файл:    strategy.cpp, строка 43
+Код:     int minElementIndex = std::min_element(...) - values.begin();
+Описание: разность итераторов имеет тип ptrdiff_t (long long), присваивается int.
+Исправление: добавлен явный static_cast<int>(...)
+
+------------------------------------
+4. bugprone-easily-swappable-parameters
+------------------------------------
+Файлы:   boolequation.cpp (строка 10), boolinterval.cpp (строки 53, 174)
+Примеры: BoolEquation(... int cnfSize, int count ...)
+         setInterval(BBV &vec, BBV &dnc)
+         setValue(char value, int ix)
+Описание: соседние параметры одного типа легко перепутать при вызове.
+          Это предупреждение об архитектурном риске, не об ошибке.
+Исправление: не вносилось — сигнатуры функций являются частью исходного
+             интерфейса проекта. Нарушение задокументировано.
+
+------------------------------------
+Итог
+------------------------------------
+Всего предупреждений в коде проекта: 9
+Исправлено: 2 (performance-unnecessary-value-param, bugprone-narrowing-conversions в strategy.cpp)
+Задокументировано без исправления: 7 (требуют изменения интерфейсов исходного кода)
