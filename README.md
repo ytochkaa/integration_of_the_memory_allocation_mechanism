@@ -8,82 +8,67 @@
 
 ```mermaid
 classDiagram
-    namespace Memory {
-        class Allocator {
-            +Allocate(size_t) void*
-            +Deallocate(void*)
-            +GetAllocations() UINT
-            +GetDeallocations() UINT
-        }
-        class AllocatorPool~T, Objects~
+    class Allocator {
+        +Allocate(size_t) void*
+        +Deallocate(void*)
+        +GetAllocations() UINT
+        +GetDeallocations() UINT
     }
-
-    namespace BitVector {
-        class X {
-            -byte* ptr
-            -int index
-        }
-        class BBV {
-            -byte* vec
-            -int size
-            -int len
-            +getWeight() int
-            +getSize() int
-        }
+    class AllocatorPool~T, Objects~
+    class X {
+        -byte* ptr
+        -int index
     }
-
-    namespace Strategy {
-        class IStrategy {
-            <<interface>>
-            +ChooseColumn(BoolEquation&) int
-        }
-        class MostConstrainedStrategy {
-            +ChooseColumn(BoolEquation&) int
-        }
-        class FirstFreeColumnStrategy {
-            +ChooseColumn(BoolEquation&) int
-        }
+    class BBV {
+        -byte* vec
+        -int size
+        -int len
+        +getWeight() int
+        +getSize() int
     }
-
-    namespace SAT {
-        class BoolInterval {
-            +BBV vec
-            +BBV dnc
-            +getValue(int ix) char
-            +setValue(char value, int ix) void
-            +isOrthogonal(BoolInterval&) bool
-            +mergeInterval(BoolInterval&) BoolInterval&
-        }
-        class BoolEquation {
-            +BoolInterval** cnf
-            +BoolInterval* root
-            +int cnfSize
-            +int count
-            +BBV mask
-            +shared_ptr~IStrategy~ BranchStrategy
-            +CheckRules() int
-            +Simplify(int, char) void
-            +ChooseColForBranching() int
-            +setStrategy(shared_ptr~IStrategy~) bool
-        }
-        class NodeBoolTree {
-            +NodeBoolTree* lt
-            +NodeBoolTree* rt
-            +BoolEquation* eq
-        }
+    class IStrategy {
+        <<interface>>
+        +ChooseColumn(BoolEquation&) int
     }
-
-    namespace Experiments {
-        class ListNode {
-            +int value
-            +ListNode* next
-        }
+    class MostConstrainedStrategy {
+        +ChooseColumn(BoolEquation&) int
+    }
+    class FirstFreeColumnStrategy {
+        +ChooseColumn(BoolEquation&) int
+    }
+    class BoolInterval {
+        +BBV vec
+        +BBV dnc
+        +getValue(int ix) char
+        +setValue(char value, int ix) void
+        +isOrthogonal(BoolInterval&) bool
+        +mergeInterval(BoolInterval&) BoolInterval&
+    }
+    class BoolEquation {
+        +BoolInterval** cnf
+        +BoolInterval* root
+        +int cnfSize
+        +int count
+        +BBV mask
+        +shared_ptr~IStrategy~ BranchStrategy
+        +CheckRules() int
+        +Simplify(int, char) void
+        +ChooseColForBranching() int
+        +setStrategy(shared_ptr~IStrategy~) bool
+    }
+    class NodeBoolTree {
+        +NodeBoolTree* lt
+        +NodeBoolTree* rt
+        +BoolEquation* eq
+    }
+    class ListNode {
+        +int value
+        +ListNode* next
     }
 
     AllocatorPool --|> Allocator
     IStrategy <|-- MostConstrainedStrategy
     IStrategy <|-- FirstFreeColumnStrategy
-
     BBV ..> X
     BoolInterval *-- BBV
     BoolEquation *-- BBV
@@ -91,7 +76,6 @@ classDiagram
     BoolEquation --> BoolInterval
     BoolEquation --> IStrategy
     NodeBoolTree --> BoolEquation
-
     BoolInterval ..> Allocator
     BoolEquation ..> Allocator
     NodeBoolTree ..> Allocator
