@@ -4,6 +4,7 @@
 #include "BBV.h"
 #include "boolinterval.h"
 #include "boolequation.h"
+#include "Allocator.h"
 
 class NodeBoolTree
 {
@@ -17,6 +18,8 @@ public:
 	NodeBoolTree *lt = nullptr, *rt = nullptr;
 
 	BoolEquation *eq;
+
+	DECLARE_ALLOCATOR
 };
 
 #endif // NODEBOOLTREE_H

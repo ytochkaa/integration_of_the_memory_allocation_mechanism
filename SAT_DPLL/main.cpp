@@ -12,6 +12,8 @@
 #include "BBV.h"
 #include "strategy.h"
 
+IMPLEMENT_ALLOCATOR(NodeBoolTree, 0, 0)
+
 
 int main(int argc, char *argv[])
 {
