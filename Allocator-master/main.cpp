@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <new>
 #include <iostream>
+#include <chrono>
 
 // @see https://github.com/endurodave/Allocator
 
@@ -9,12 +10,22 @@
 // the debugger use this option:
 // Debugging > Environment _NO_DEBUG_HEAP=1
 
-class MyClass 
+class MyClass
 {
 	DECLARE_ALLOCATOR
 	// remaining class definition
 };
 IMPLEMENT_ALLOCATOR(MyClass, 0, 0)
+
+// Структура узла односвязного списка с кастомным аллокатором
+struct ListNode
+{
+	int value;
+	ListNode* next;
+	ListNode(int v) : value(v), next(nullptr) {}
+	DECLARE_ALLOCATOR
+};
+IMPLEMENT_ALLOCATOR(ListNode, 0, 0)
 
 // Heap blocks mode unlimited with 100 byte blocks
 Allocator allocatorHeapBlocks(100);
@@ -46,6 +57,9 @@ static void out_of_memory()
 typedef void* (*AllocFunc)(int size);
 typedef void (*DeallocFunc)(void* ptr);
 void Benchmark(const char* name, AllocFunc allocFunc, DeallocFunc deallocFunc);
+void ExperimentListNodeAllocator(int count);
+void ExperimentListNodeNewDelete(int count);
+void ExperimentCompare(int count);
 void* AllocHeap(int size);
 void DeallocHeap(void* ptr);
 void* AllocStaticPool(int size);
@@ -89,7 +103,81 @@ int main(void)
 	Benchmark("Heap Blocks (Run 1)", AllocHeapBlocks, DeallocHeapBlocks);
 	Benchmark("Heap Blocks (Run 2)", AllocHeapBlocks, DeallocHeapBlocks);
 	Benchmark("Heap Blocks (Run 3)", AllocHeapBlocks, DeallocHeapBlocks);
+
+	ExperimentCompare(100000);
+
 	return 0;
+}
+
+//------------------------------------------------------------------------------
+// ExperimentListNodeAllocator
+// Создаёт связный список из count узлов через кастомный аллокатор, затем удаляет.
+//------------------------------------------------------------------------------
+void ExperimentListNodeAllocator(int count)
+{
+	auto start = std::chrono::high_resolution_clock::now();
+
+	ListNode* head = nullptr;
+	for (int i = 0; i < count; i++) {
+		ListNode* node = new ListNode(i);
+		node->next = head;
+		head = node;
+	}
+
+	while (head != nullptr) {
+		ListNode* next = head->next;
+		delete head;
+		head = next;
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	long long us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+	std::cout << "  Кастомный аллокатор (" << count << " узлов): " << us << " мкс\n";
+}
+
+//------------------------------------------------------------------------------
+// ExperimentListNodeNewDelete
+// Создаёт связный список из count узлов через стандартный new/delete.
+//------------------------------------------------------------------------------
+void ExperimentListNodeNewDelete(int count)
+{
+	auto start = std::chrono::high_resolution_clock::now();
+
+	struct PlainNode {
+		int value;
+		PlainNode* next;
+		PlainNode(int v) : value(v), next(nullptr) {}
+	};
+
+	PlainNode* head = nullptr;
+	for (int i = 0; i < count; i++) {
+		PlainNode* node = new PlainNode(i);
+		node->next = head;
+		head = node;
+	}
+
+	while (head != nullptr) {
+		PlainNode* next = head->next;
+		delete head;
+		head = next;
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	long long us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+	std::cout << "  Стандартный new/delete (" << count << " узлов): " << us << " мкс\n";
+}
+
+//------------------------------------------------------------------------------
+// ExperimentCompare
+// Сравнивает кастомный аллокатор и стандартный new/delete.
+//------------------------------------------------------------------------------
+void ExperimentCompare(int count)
+{
+	std::cout << "\n=== Эксперимент: сравнение аллокатора и new/delete ===\n";
+	ExperimentListNodeAllocator(count);
+	ExperimentListNodeNewDelete(count);
 }
 
 //------------------------------------------------------------------------------
