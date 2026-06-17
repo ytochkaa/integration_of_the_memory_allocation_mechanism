@@ -6,3 +6,4 @@ SAT_DPLL/Makefile.Release
 .gitignore
 SAT_DPLL/Makefile.Debug
 SAT_DPLL/release/
+Allocator-master/*.exe
