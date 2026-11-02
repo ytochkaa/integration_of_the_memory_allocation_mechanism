@@ -1,50 +1,34 @@
-#include "strategy.h"  
+#include "strategy.h"
 #include "boolequation.h"
 
-#include <algorithm>
-#include <vector>
-
+// Выбирает свободный столбец с минимальным числом символов '-'.
 int MostConstrainedStrategy::ChooseColumn(BoolEquation &equation) const {
-    std::vector<int> indexes;
-	std::vector<int> values;
-	bool rezInit = false;
+	int bestColumn = -1;
+	int bestCount = 0;
 
-	for (int i = 0; i < equation.mask.getSize(); i++) {
-		if (equation.mask[i] == 0) {
-			indexes.push_back(i);
+	for (int col = 0; col < equation.mask.getSize(); col++) {
+		// Единица в маске: столбец уже обработан, ветвиться по нему нельзя.
+		if (equation.mask[col] != 0)
+			continue;
+
+		// Считаем '-' только в ещё не выполненных дизъюнкциях (nullptr - уже выполнена).
+		int dontCares = 0;
+		for (int i = 0; i < equation.cnfSize; i++) {
+			if (equation.cnf[i] != nullptr && equation.cnf[i]->getValue(col) == '-')
+				dontCares++;
+		}
+
+		// При равенстве остаётся столбец с меньшим индексом.
+		if (bestColumn < 0 || dontCares < bestCount) {
+			bestColumn = col;
+			bestCount = dontCares;
 		}
 	}
 
-	for (int i = 0; i < equation.cnfSize; i++) {
-		BoolInterval *interval = equation.cnf[i];
-
-		if (interval != nullptr) {
-			if (!rezInit) {
-				for (int k = 0; k < indexes.size(); k++) {
-					if (interval->getValue(indexes.at(k)) == '-') {
-						values.push_back(1);
-					} else {
-						values.push_back(0);
-					}
-				}
-
-				rezInit = true;
-			} else {
-				for (int k = 0; k < indexes.size(); k++) {
-					if (interval->getValue(indexes.at(k)) == '-') {
-						//int val = values.at(k) + (interval->getValue(indexes.at(k)) - '0');
-						values.at(k)++;
-					}
-				}
-			}
-		}
-	}
-
-	int minElementIndex = static_cast<int>(std::min_element(values.begin(), values.end()) - values.begin());
-
-	return indexes.at(minElementIndex);
+	return bestColumn;
 }
 
+// Выбирает первый свободный столбец.
 int FirstFreeColumnStrategy::ChooseColumn(BoolEquation &equation) const {
 	for (int i = 0; i < equation.mask.getSize(); i++) {
 		if (equation.mask[i] == 0)

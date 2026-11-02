@@ -5,6 +5,7 @@
 #include <ostream>
 #include <string>
 
+// Режим HEAP_BLOCKS: блоки берутся из кучи, освобождённые используются повторно.
 IMPLEMENT_ALLOCATOR(BoolEquation, 0, 0)
 
 BoolEquation::BoolEquation(BoolInterval **cnf, BoolInterval *root, int cnfSize, int count, BBV mask)
@@ -223,6 +224,7 @@ void BoolEquation::Simplify(int ixCol, char value)
 	mask.Set1(ixCol);
 }
 
+// Без заданной стратегии ветвление невозможно: возвращается -1.
 int BoolEquation::ChooseColForBranching()
 {
 	if(BranchStrategy)
@@ -230,6 +232,7 @@ int BoolEquation::ChooseColForBranching()
     else return -1;
 }
 
+// Заменяет стратегию; nullptr отклоняется, текущая стратегия при этом сохраняется.
 bool BoolEquation::setStrategy(const std::shared_ptr<IStrategy> &BranchStrategyArg)
 {
     if (!BranchStrategyArg)

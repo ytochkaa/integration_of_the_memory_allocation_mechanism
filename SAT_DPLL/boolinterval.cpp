@@ -3,6 +3,7 @@
 #include <cstring>
 #include<iostream>
 
+// Режим HEAP_BLOCKS: блоки берутся из кучи, освобождённые используются повторно.
 IMPLEMENT_ALLOCATOR(BoolInterval, 0, 0)
 BoolInterval::BoolInterval(size_t len)
 {

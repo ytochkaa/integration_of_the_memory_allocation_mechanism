@@ -1,52 +1,68 @@
-Отчёт по статическому анализу кода
-====================================
-Инструмент: clang-tidy (Qt Creator 8.x, LLVM/Clang)
-Проект: SAT_DPLL (DPLL-решатель булевых уравнений)
-Анализируемые файлы: boolequation.cpp, boolinterval.cpp, strategy.cpp
-Проверки: clang-analyzer-*, bugprone-*, performance-*, modernize-*
+Отчёт по исследованию проекта SAT_DPLL
+======================================
+Код выданного проекта (main.cpp, BBV, BoolInterval, правила BoolEquation) не изменялся.
+Найденные в нём проблемы задокументированы. Изменения внесены только в решение:
+подключение Allocator и стратегии ветвления.
 
-------------------------------------
-1. performance-unnecessary-value-param
-------------------------------------
-Файл:    boolequation.cpp, строка 233
-Код:     bool BoolEquation::setStrategy(std::shared_ptr<IStrategy> BranchStrategyArg)
-Описание: параметр shared_ptr копируется при каждом вызове, хотя используется
-          только для чтения — избыточная операция увеличения счётчика ссылок.
-Исправление: параметр изменён на const std::shared_ptr<IStrategy> &BranchStrategyArg
 
-------------------------------------
-2. bugprone-narrowing-conversions
-------------------------------------
-Файл:    boolinterval.cpp, строки 9, 10, 30, 31
-Код:     vec = BBV(len);  // len имеет тип size_t, BBV принимает int
-Описание: неявное сужающее преобразование size_t -> int; на платформах
-          с size_t > int возможна потеря значения.
-Исправление: не вносилось — изменение требует правки интерфейса класса BBV,
-             что выходит за рамки задачи. Нарушение задокументировано.
+1. Статический анализ
+---------------------
+Инструмент: clang-tidy (из Qt Creator, LLVM/Clang)
+Проверки:   clang-analyzer-*, bugprone-*, performance-*
+Файлы:      BBV.cpp, boolinterval.cpp, boolequation.cpp, strategy.cpp
 
-------------------------------------
-3. bugprone-narrowing-conversions
-------------------------------------
-Файл:    strategy.cpp, строка 43
-Код:     int minElementIndex = std::min_element(...) - values.begin();
-Описание: разность итераторов имеет тип ptrdiff_t (long long), присваивается int.
-Исправление: добавлен явный static_cast<int>(...)
+Важные предупреждения (выданный код):
+- BBV.cpp:49, 106, 198 — clang-analyzer-core.uninitialized.Assign:
+  запись в неинициализированную память.
+- BBV.cpp:361 — clang-analyzer-core.UndefinedBinaryOperatorResult:
+  сравнение с неопределённым значением.
+- BBV.cpp:375 — clang-analyzer-security.ArrayBound:
+  возможный выход за границу массива в куче.
+- BBV.cpp:464 — bugprone-unhandled-self-assignment:
+  оператор присваивания не обрабатывает самоприсваивание.
 
-------------------------------------
-4. bugprone-easily-swappable-parameters
-------------------------------------
-Файлы:   boolequation.cpp (строка 10), boolinterval.cpp (строки 53, 174)
-Примеры: BoolEquation(... int cnfSize, int count ...)
-         setInterval(BBV &vec, BBV &dnc)
-         setValue(char value, int ix)
-Описание: соседние параметры одного типа легко перепутать при вызове.
-          Это предупреждение об архитектурном риске, не об ошибке.
-Исправление: не вносилось — сигнатуры функций являются частью исходного
-             интерфейса проекта. Нарушение задокументировано.
+Предупреждения низкой важности:
+- bugprone-narrowing-conversions: BBV.cpp:42, 97, 189; boolinterval.cpp:9, 10, 30, 31
+  (сужение size_t до int).
+- bugprone-easily-swappable-parameters: boolequation.cpp:10; boolinterval.cpp:53, 174.
+- bugprone-throwing-static-initialization: boolequation.cpp:8, boolinterval.cpp:6
+  (статические объекты из макроса IMPLEMENT_ALLOCATOR).
+- bugprone-reserved-identifier, performance-enum-size: Allocator.h, DataTypes.h
+  (внешняя библиотека).
 
-------------------------------------
-Итог
-------------------------------------
-Всего предупреждений в коде проекта: 9
-Исправлено: 2 (performance-unnecessary-value-param, bugprone-narrowing-conversions в strategy.cpp)
-Задокументировано без исправления: 7 (требуют изменения интерфейсов исходного кода)
+В strategy.cpp собственных предупреждений нет.
+
+
+2. Проблемы, найденные при чтении кода и запуске
+------------------------------------------------
+- BBV.cpp:100, 172, 192 — "delete vec" для памяти из "new byte[]" (должно быть delete[]).
+- BBV.cpp:464 — X::operator=(X&) завершается без return (неопределённое поведение).
+- BBV.h — копирование и операторы принимают неконстантную ссылку BBV&, поэтому
+  временный результат операций преобразуется через operator char*(), а выделенная
+  им строка не освобождается (утечка).
+- BoolEquation — нет деструктора; cnf и root не освобождаются (утечка).
+- main.cpp — созданные в куче узлы, уравнения и интервалы не освобождаются (утечка).
+- boolinterval.cpp:69 — сравнение BBV через "!=" сравнивает указатели из operator char*().
+- main.cpp — служебные строки PLA (.i, .o, .p, .type, .e) читаются как дизъюнкты:
+  файлы этого формата завершаются необработанным исключением int.
+
+
+3. Исправлено в решении
+-----------------------
+- strategy.cpp — MostConstrainedStrategy при отсутствии свободных столбцов выбрасывала
+  std::out_of_range; теперь возвращает -1, как и требует контракт. Функция упрощена.
+
+
+4. Динамический анализ (Valgrind)
+---------------------------------
+Запуск: GitHub Actions, workflow .github/workflows/valgrind.yml.
+Результат: <вставить итоги из valgrind_report.txt>
+
+
+5. Проверка работы решателя
+---------------------------
+Сборка: qmake, Qt 5.15, MinGW 8.1.
+Обе стратегии проверены на 70 файлах .pla:
+- 18 файлов без заголовка PLA: 15 корней и 3 ответа "корня нет". Корни проверены
+  подстановкой, ответы "корня нет" — отдельным решателем. Ошибок нет.
+- 52 файла с заголовком PLA: аварийное завершение (см. раздел 2).

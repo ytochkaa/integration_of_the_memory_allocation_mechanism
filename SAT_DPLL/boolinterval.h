@@ -35,7 +35,7 @@ public:
 
 	void setValue(char value, int ix); //Установить iое значение интервала
 
-	DECLARE_ALLOCATOR
+	DECLARE_ALLOCATOR // new/delete этого класса идут через Allocator
 };
 
 #endif // BOOLINTERVAL_H

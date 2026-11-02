@@ -24,12 +24,12 @@ public:
 	bool Rule4Col0(BBV vector);
 	bool Rule5Col1(BBV vector);
 	void Simplify(int ixCol, char value);
-	int ChooseColForBranching();
+	int ChooseColForBranching(); // делегирует выбор столбца текущей стратегии
 
-	std::shared_ptr<IStrategy> BranchStrategy;
-	bool setStrategy(const std::shared_ptr<IStrategy> &BranchStrategy);
+	std::shared_ptr<IStrategy> BranchStrategy; // копии уравнения разделяют одну стратегию
+	bool setStrategy(const std::shared_ptr<IStrategy> &BranchStrategy); // false, если передан nullptr
 
-	DECLARE_ALLOCATOR
+	DECLARE_ALLOCATOR // new/delete этого класса идут через Allocator
 };
 
 #endif // BOOLEQUATION_H

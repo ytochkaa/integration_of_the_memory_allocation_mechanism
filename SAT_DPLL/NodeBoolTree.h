@@ -19,7 +19,7 @@ public:
 
 	BoolEquation *eq;
 
-	DECLARE_ALLOCATOR
+	DECLARE_ALLOCATOR // new/delete этого класса идут через Allocator
 };
 
 #endif // NODEBOOLTREE_H
